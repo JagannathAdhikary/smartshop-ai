@@ -1,0 +1,12 @@
+server:
+  port: 8081
+
+spring:
+  datasource:
+    url: "jdbc:postgresql://localhost:5432/smartshop_users"
+    username: smartshop
+    password: pwd
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+    show-sql: true
