@@ -1,4 +1,4 @@
-package com.smartshop.user.contant;
+package com.smartshop.user.constant;
 
 public enum UserRole {
   ADMIN, BUYER, SELLER

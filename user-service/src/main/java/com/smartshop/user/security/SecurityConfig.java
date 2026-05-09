@@ -18,11 +18,12 @@ public class SecurityConfig {
   public SecurityFilterChain filterChain(HttpSecurity http) {
     return http.authorizeHttpRequests(
         auth -> auth
-            .requestMatchers("/auth/register").permitAll()
+            .requestMatchers("/api/auth/register").permitAll()
             .anyRequest().authenticated())
         .sessionManagement(session -> session
             .sessionCreationPolicy(SessionCreationPolicy.STATELESS))
         .httpBasic(Customizer.withDefaults())
+        .csrf( csrf -> csrf.disable() )
         .build();
   }
 
