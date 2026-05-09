@@ -1,6 +1,6 @@
 package com.smartshop.user.model;
 
-import com.smartshop.user.contant.UserRole;
+import com.smartshop.user.constant.UserRole;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
