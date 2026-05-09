@@ -2,6 +2,7 @@ package com.smartshop.user.service;
 
 import com.smartshop.user.constant.UserRole;
 import com.smartshop.user.dto.RegisterRequest;
+import com.smartshop.user.exception.UserAlreadyExistsException;
 import com.smartshop.user.model.User;
 import com.smartshop.user.repository.UserRepository;
 import java.time.Instant;
@@ -15,6 +16,14 @@ public class UserService {
   private final UserRepository userRepository;
   private final PasswordEncoder passwordEncoder;
 
+  public void register(RegisterRequest registerRequest) {
+    if(this.fetchUser(registerRequest.getEmail())!=null) {
+      throw new UserAlreadyExistsException("User with email - "
+          + registerRequest.getEmail()
+          + " already exists");
+    }
+    this.save(registerRequest);
+  }
   public void save(RegisterRequest registerRequest) {
     User user = convertToUser(registerRequest);
     userRepository.save(user);
@@ -30,7 +39,7 @@ public class UserService {
     user.setEmail(request.getEmail());
     user.setPassword(passwordEncoder.encode(request.getPassword()));
     user.setMobile(request.getMobile());
-    user.setRole(UserRole.valueOf(request.getRole()));
+    user.setRole(request.getRole());
     user.setCreatedAt(Instant.now());
     return user;
   }
