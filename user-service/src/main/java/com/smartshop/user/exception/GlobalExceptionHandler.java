@@ -4,6 +4,7 @@ import java.util.stream.Collectors;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -26,5 +27,10 @@ public class GlobalExceptionHandler {
     String message = e.getBindingResult().getFieldErrors().stream()
         .map(err -> err.getRejectedValue()+" is not a valid "+err.getField()).collect(Collectors.joining("\n"));
     return ResponseEntity.badRequest().body(message);
+  }
+
+  @ExceptionHandler(BadCredentialsException.class)
+  public ResponseEntity handleBadCredential(BadCredentialsException e) {
+    return ResponseEntity.status(401).body("Wrong Credential");
   }
 }

@@ -1,0 +1,32 @@
+server.port: 8080
+
+spring:
+  application.name: api-gateway
+  cloud:
+    gateway.server.webflux.routes:
+      # Auth routes — NO JWT required
+      - id: user-service-auth
+        uri: lb://USER-SERVICE       # lb:// = load-balanced via Eureka
+        predicates:
+          - Path=/api/auth/**
+
+      # Protected user routes — JWT required
+      - id: user-service-protected
+        uri: lb://USER-SERVICE
+        predicates:
+          - Path=/api/users/**
+        filters:
+          - JwtAuthenticationFilter                # your custom JWT filter
+
+      # Future services — add as you build them
+      # - id: product-service
+      #   uri: lb://PRODUCT-SERVICE
+      #   predicates:
+      #     - Path=/api/products/**
+
+eureka:
+  client:
+    service-url:
+      defaultZone: http://localhost:8761/eureka/
+
+jwt.secret: ${JWT_SECRET}
