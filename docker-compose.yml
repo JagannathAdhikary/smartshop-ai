@@ -1,5 +1,5 @@
 services:
-  postgre:
+  postgre-user:
     image: postgres:14.22-trixie
     environment:
       POSTGRES_DB: smartshop_users
@@ -8,7 +8,17 @@ services:
     ports:
       - 5432:5432
     volumes:
-      - postgres_data:/var/lib/postgresql/data
+      - postgres_user_data:/var/lib/postgresql/data
+  postgre-product:
+    image: postgres:14.22-trixie
+    environment:
+      POSTGRES_DB: smartshop_products
+      POSTGRES_USER: smartshop
+      POSTGRES_PASSWORD: pwd
+    ports:
+      - 5433:5432
+    volumes:
+      - postgres_product_data:/var/lib/postgresql/data
 
   redis:
     image: redis:7-alpine
@@ -16,4 +26,5 @@ services:
       - "6379:6379"
 
 volumes:
-  postgres_data:
+  postgres_user_data:
+  postgres_product_data:

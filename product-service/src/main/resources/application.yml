@@ -1,0 +1,20 @@
+server.port: 8082
+
+spring:
+  application.name: product-service
+  datasource:
+    url: "jdbc:postgresql://localhost:5433/smartshop_products"
+    username: smartshop
+    password: pwd
+
+  jpa:
+    hibernate:
+      ddl-auto: create
+    show-sql: true
+
+eureka:
+  client:
+    service-url:
+      default-zone: http://localhost:8761/eureka/
+  instance:
+    prefer-ip-address: true

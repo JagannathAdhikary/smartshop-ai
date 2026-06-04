@@ -18,11 +18,20 @@ spring:
         filters:
           - JwtAuthenticationFilter                # your custom JWT filter
 
-      # Future services — add as you build them
-      # - id: product-service
-      #   uri: lb://PRODUCT-SERVICE
-      #   predicates:
-      #     - Path=/api/products/**
+      - id: product-service
+        uri: lb://PRODUCT-SERVICE
+        predicates:
+          - Path=/api/products/**
+          - Method=POST,PUT,DELETE
+        filters:
+          - name: JwtAuthenticationFilter
+            args:
+              roles: SELLER,ADMIN
+      - id: product-service-get-product
+        uri: lb://PRODUCT-SERVICE
+        predicates:
+          - Path=/api/products/**
+          - Method=GET
 
 eureka:
   client:
