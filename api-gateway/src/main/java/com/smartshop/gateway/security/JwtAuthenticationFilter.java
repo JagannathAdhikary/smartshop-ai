@@ -12,8 +12,11 @@ import org.springframework.http.MediaType;
 import org.springframework.http.server.reactive.ServerHttpRequest;
 import org.springframework.http.server.reactive.ServerHttpResponse;
 import org.springframework.stereotype.Component;
+import org.springframework.util.CollectionUtils;
 import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
+
+import java.util.List;
 
 @Component
 public class JwtAuthenticationFilter extends AbstractGatewayFilterFactory<JwtAuthenticationFilter.Config> {
@@ -30,6 +33,16 @@ public class JwtAuthenticationFilter extends AbstractGatewayFilterFactory<JwtAut
             String token = extractToken(exchange.getRequest());
             try {
                 if (token != null && jwtService.validateToken(token)) {
+                    if(!CollectionUtils.isEmpty(config.roles)) {
+                        String userRole = jwtService.extractRoles(token);
+                        if(config.roles.contains(userRole)) {
+                            ServerHttpRequest mutatedReq = exchange.getRequest().mutate()
+                                    .header("X-User-Role", userRole).build();
+                            exchange = exchange.mutate().request(mutatedReq).build();
+                        } else {
+                            return unauthorized(exchange, "{\"error\":\"Not having permission to access this endpoint\"}");
+                        }
+                    }
                     String username = jwtService.extractUsername(token);
                     ServerHttpRequest mutatedHeader = exchange.getRequest().mutate().header("X-User-Id", username).build();
                     return chain.filter(exchange.mutate().request(mutatedHeader).build());
@@ -44,6 +57,11 @@ public class JwtAuthenticationFilter extends AbstractGatewayFilterFactory<JwtAut
         };
 
     }
+
+//    @Override
+//    public List<String> shortcutFieldOrder() {
+//        return List.of("roles");
+//    }
 
     private String extractToken(ServerHttpRequest request) {
         String auth = request.getHeaders().getFirst("Authorization");
@@ -62,5 +80,11 @@ public class JwtAuthenticationFilter extends AbstractGatewayFilterFactory<JwtAut
         return response.writeWith(Mono.just(responseBody));
     }
 
-    public static class Config {}
+    public static class Config {
+        private List<String> roles;
+
+        public void setRoles(List<String> roles) {
+            this.roles = roles;
+        }
+    }
 }

@@ -22,6 +22,12 @@ public class JwtService {
                 .getPayload().getSubject();
     }
 
+    public String extractRoles(String token) {
+        return (String) Jwts.parser().verifyWith(getSigningKey())
+                .build().parseSignedClaims(token)
+                .getPayload().get("role");
+    }
+
     public boolean validateToken(String token) {
         return Jwts.parser().verifyWith(getSigningKey()).build()
                 .parseSignedClaims(token)
