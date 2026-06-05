@@ -1,7 +1,7 @@
 package com.smartshop.user.service;
 
-import com.smartshop.user.constant.UserRole;
 import com.smartshop.user.dto.RegisterRequest;
+import com.smartshop.user.dto.UserProfile;
 import com.smartshop.user.exception.UserAlreadyExistsException;
 import com.smartshop.user.model.User;
 import com.smartshop.user.repository.UserRepository;
@@ -29,6 +29,10 @@ public class UserService {
     userRepository.save(user);
   }
 
+  public UserProfile fetchUserProfile(String email) {
+    return convertToUserProfile(this.fetchUser(email));
+  }
+
   public User fetchUser(String email) {
     return userRepository.findByEmail(email).orElse(null);
   }
@@ -42,5 +46,11 @@ public class UserService {
     user.setRole(request.getRole());
     user.setCreatedAt(Instant.now());
     return user;
+  }
+  private UserProfile convertToUserProfile(User user) {
+    return UserProfile.builder().name(user.getName())
+            .email(user.getEmail())
+            .mobile(user.getMobile())
+            .build();
   }
 }
