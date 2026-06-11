@@ -24,6 +24,30 @@ public class ProductController {
         return ResponseEntity.status(HttpStatus.CREATED).body("Product created successfully");
     }
 
+    @PatchMapping("/{id}")
+    public ResponseEntity updateProduct(@PathVariable("id") UUID productId,
+                                        @RequestBody ProductRequest request,
+                                        @RequestHeader("X-User-Id") String email) {
+        productService.updateProduct(productId, request, email);
+        return ResponseEntity.ok("Product updated successfully");
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity deleteProduct(@PathVariable("id") UUID productId,
+                                        @RequestHeader("X-User-Id") String email) {
+        productService.deleteProduct(productId, email);
+        return ResponseEntity.noContent().build();
+    }
+
+    @GetMapping
+    public ResponseEntity fetchAllProducts(@RequestParam(name = "name", required = false) String name) {
+        if(name!=null) {
+            return ResponseEntity.ok(productService.fetchProducts(name));
+        } else {
+            return ResponseEntity.ok(productService.fetchProducts());
+        }
+    }
+
     @GetMapping("/{id}")
     public ResponseEntity fetchProducts(@PathVariable("id") UUID productId) {
         ProductResponse response = productService.fetchProductById(productId);

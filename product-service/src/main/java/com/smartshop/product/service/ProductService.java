@@ -10,6 +10,7 @@ import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.time.Instant;
+import java.util.List;
 import java.util.UUID;
 
 @Service
@@ -22,11 +23,47 @@ public class ProductService {
     }
 
     public ProductResponse fetchProductById(UUID prodId) {
-        Product product = productRepository.findById(prodId)
-                .orElseThrow(() -> new ProductNotFoundException("Product Not Found"));
-        return convertToProductResponse(product);
+        return convertToProductResponse(this.findById(prodId));
     }
 
+    public List<ProductResponse> fetchProducts() {
+        return productRepository.findAll().stream()
+                .map(this::convertToProductResponse).toList();
+    }
+
+    public List<ProductResponse> fetchProducts(String name) {
+        return productRepository.findByNameLikeIgnoreCase("%"+name+"%").stream()
+                .map(this::convertToProductResponse).toList();
+    }
+
+    public void updateProduct(UUID prodId, ProductRequest request, String email) {
+        Product product = this.findById(prodId);
+        if(!product.getSellerEmail().equals(email)) {
+            throw new IllegalCallerException("Product doesn't belong to the sender");
+        }
+        productRepository.save(this.updateProductWithRequest(product, request));
+    }
+
+    public void deleteProduct(UUID prodId, String email) {
+        Product product = this.findById(prodId);
+        if(!product.getSellerEmail().equals(email)) {
+            throw new IllegalCallerException("Product doesn't belong to the sender");
+        }
+        productRepository.delete(product);
+    }
+
+    private Product findById(UUID id) {
+        return productRepository.findById(id)
+                .orElseThrow(() -> new ProductNotFoundException("Product Not Found"));
+    }
+    private Product updateProductWithRequest(Product product, ProductRequest request) {
+        if(request.getName() != null) product.setName(request.getName());
+        if(request.getDescription() != null) product.setDescription(request.getDescription());
+        if(request.getQuantity() != null) product.setQuantity(request.getQuantity());
+        if(request.getPrice() != null) product.setPrice(request.getPrice());
+        if(request.getCategories() != null) product.setCategories(request.getCategories());
+        return product;
+    }
     private Product convertToProduct(ProductRequest request, String email) {
         return Product.builder()
                 .name(request.getName())
