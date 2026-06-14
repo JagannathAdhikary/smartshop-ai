@@ -7,6 +7,7 @@ import com.smartshop.product.model.Category;
 import com.smartshop.product.model.Product;
 import com.smartshop.product.repository.ProductRepository;
 import lombok.AllArgsConstructor;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.time.Instant;
@@ -26,13 +27,13 @@ public class ProductService {
         return convertToProductResponse(this.findById(prodId));
     }
 
-    public List<ProductResponse> fetchProducts() {
-        return productRepository.findAll().stream()
+    public List<ProductResponse> fetchProducts(Pageable pageable) {
+        return productRepository.findAll(pageable).stream()
                 .map(this::convertToProductResponse).toList();
     }
 
-    public List<ProductResponse> fetchProducts(String name) {
-        return productRepository.findByNameLikeIgnoreCase("%"+name+"%").stream()
+    public List<ProductResponse> fetchProducts(String name, Pageable pageable) {
+        return productRepository.findByNameLikeIgnoreCase("%"+name+"%", pageable).stream()
                 .map(this::convertToProductResponse).toList();
     }
 

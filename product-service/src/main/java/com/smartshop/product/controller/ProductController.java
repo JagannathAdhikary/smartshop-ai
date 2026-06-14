@@ -5,6 +5,9 @@ import com.smartshop.product.dto.ProductResponse;
 import com.smartshop.product.service.ProductService;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -40,11 +43,17 @@ public class ProductController {
     }
 
     @GetMapping
-    public ResponseEntity fetchAllProducts(@RequestParam(name = "name", required = false) String name) {
+    public ResponseEntity fetchAllProducts(
+            @RequestParam(name = "name", required = false) String name,
+            @RequestParam(name = "page", required = false, defaultValue = "0") int page,
+            @RequestParam(name = "size", required = false, defaultValue = "10") int size
+    ) {
+        Sort sort = Sort.by("name").ascending();
+        Pageable pageable = PageRequest.of(page, size, sort);
         if(name!=null) {
-            return ResponseEntity.ok(productService.fetchProducts(name));
+            return ResponseEntity.ok(productService.fetchProducts(name, pageable));
         } else {
-            return ResponseEntity.ok(productService.fetchProducts());
+            return ResponseEntity.ok(productService.fetchProducts(pageable));
         }
     }
 
