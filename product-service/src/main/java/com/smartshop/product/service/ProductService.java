@@ -7,6 +7,9 @@ import com.smartshop.product.model.Category;
 import com.smartshop.product.model.Product;
 import com.smartshop.product.repository.ProductRepository;
 import lombok.AllArgsConstructor;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.cache.annotation.Caching;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
@@ -19,14 +22,20 @@ import java.util.UUID;
 public class ProductService {
     private final ProductRepository productRepository;
 
+    @CacheEvict(value = "all-products", allEntries = true)
     public void addProduct(ProductRequest request, String email) {
         productRepository.save(this.convertToProduct(request, email));
     }
 
+    @Cacheable(value = "products", key = "#p0")
     public ProductResponse fetchProductById(UUID prodId) {
         return convertToProductResponse(this.findById(prodId));
     }
 
+    @Cacheable(
+            value = "all-products",
+            key = "#p0.getPageNumber() + ':' + #p0.getPageSize() + ':' + #p0.getSort().toString()"
+    )
     public List<ProductResponse> fetchProducts(Pageable pageable) {
         return productRepository.findAll(pageable).stream()
                 .map(this::convertToProductResponse).toList();
@@ -37,6 +46,12 @@ public class ProductService {
                 .map(this::convertToProductResponse).toList();
     }
 
+    @Caching(
+            evict = {
+                    @CacheEvict(value = "all-products", allEntries = true),
+                    @CacheEvict(value = "products", key = "#p0")
+            })
+//    @CachePut(value = "products", key = "#p0") // As this method is not returning anything so put won't work
     public void updateProduct(UUID prodId, ProductRequest request, String email) {
         Product product = this.findById(prodId);
         if(!product.getSellerEmail().equals(email)) {
@@ -45,6 +60,12 @@ public class ProductService {
         productRepository.save(this.updateProductWithRequest(product, request));
     }
 
+    @Caching(
+            evict = {
+                    @CacheEvict(value = "all-products", allEntries = true),
+                    @CacheEvict(value = "products", key = "#p0")
+            }
+    )
     public void deleteProduct(UUID prodId, String email) {
         Product product = this.findById(prodId);
         if(!product.getSellerEmail().equals(email)) {

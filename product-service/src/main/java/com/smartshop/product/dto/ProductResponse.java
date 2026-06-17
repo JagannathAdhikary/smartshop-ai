@@ -3,14 +3,19 @@ package com.smartshop.product.dto;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.AllArgsConstructor;
+import lombok.NoArgsConstructor;
 
+import java.io.Serializable;
 import java.util.List;
 import java.util.UUID;
 
 @Builder
 @Getter
 @Setter
-public class ProductResponse {
+@NoArgsConstructor
+@AllArgsConstructor
+public class ProductResponse implements Serializable {
     private UUID id;
 
     private String name;
