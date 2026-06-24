@@ -9,21 +9,40 @@ spring:
 
   jpa:
     hibernate:
-      ddl-auto: create
+      ddl-auto: update
     show-sql: true
   data:
     redis:
       host: localhost
       port: 6379
-    cache:
-      type: redis
-      redis:
-        time-to-live: 600000
-        cache-null-values: false
+  cache:
+    type: redis
+    redis:
+      time-to-live: 600000
+      cache-null-values: false
+  kafka:
+    bootstrap-servers: localhost:9092
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+    consumer:
+      group-id: product-service-group
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
+      properties:
+        spring.json.trusted.packages: "com.smartshop.product.event"
+
+  mongodb:
+    host: localhost
+    port: 27017
+    database: smartshop_read
+    username: smartshop
+    password: pwd
+    authentication-database: admin
 
 eureka:
   client:
     service-url:
       default-zone: http://localhost:8761/eureka/
-  instance:
-    prefer-ip-address: true
+    instance:
+      prefer-ip-address: true

@@ -2,10 +2,12 @@ package com.smartshop.product.service;
 
 import com.smartshop.product.dto.ProductRequest;
 import com.smartshop.product.dto.ProductResponse;
+import com.smartshop.product.event.ProductEventProducer;
 import com.smartshop.product.exceptions.ProductNotFoundException;
 import com.smartshop.product.model.Category;
 import com.smartshop.product.model.Product;
 import com.smartshop.product.repository.ProductRepository;
+import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
@@ -21,10 +23,12 @@ import java.util.UUID;
 @AllArgsConstructor
 public class ProductService {
     private final ProductRepository productRepository;
+    private final ProductEventProducer productEventProducer;
 
     @CacheEvict(value = "all-products", allEntries = true)
     public void addProduct(ProductRequest request, String email) {
-        productRepository.save(this.convertToProduct(request, email));
+        Product savedProduct = productRepository.save(this.convertToProduct(request, email));
+        productEventProducer.publish(savedProduct, "CREATED");
     }
 
     @Cacheable(value = "products", key = "#p0")
@@ -57,7 +61,8 @@ public class ProductService {
         if(!product.getSellerEmail().equals(email)) {
             throw new IllegalCallerException("Product doesn't belong to the sender");
         }
-        productRepository.save(this.updateProductWithRequest(product, request));
+        Product savedProduct = productRepository.save(this.updateProductWithRequest(product, request));
+        productEventProducer.publish(savedProduct, "UPDATED");
     }
 
     @Caching(
@@ -66,12 +71,14 @@ public class ProductService {
                     @CacheEvict(value = "products", key = "#p0")
             }
     )
+    @Transactional
     public void deleteProduct(UUID prodId, String email) {
         Product product = this.findById(prodId);
         if(!product.getSellerEmail().equals(email)) {
             throw new IllegalCallerException("Product doesn't belong to the sender");
         }
         productRepository.delete(product);
+        productEventProducer.publish(product, "DELETED");
     }
 
     private Product findById(UUID id) {
