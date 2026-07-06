@@ -40,7 +40,15 @@ spring:
           - name: JwtAuthenticationFilter
             args:
               roles: ADMIN
-
+      - id: order-service
+        uri: lb://ORDER-SERVICE
+        predicates:
+          - Path=/api/orders/**
+          - Method=POST,GET
+        filters:
+          - name: JwtAuthenticationFilter
+            args:
+              roles: BUYER,ADMIN
 eureka:
   client:
     service-url:

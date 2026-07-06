@@ -1,0 +1,30 @@
+server.port: 8083
+
+spring:
+  application.name: order-service
+  datasource:
+    url: "jdbc:postgresql://localhost:5434/smartshop_orders"
+    username: smartshop
+    password: pwd
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+
+  kafka:
+    bootstrap-servers: localhost:9092
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+    consumer:
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
+      properties:
+        spring.json.trusted.packages: "com.smartshop.order.event"
+eureka:
+  client:
+    service-url:
+      default-zone: http://localhost:8761/eureka/
+    instance:
+      prefer-ip-address: true
