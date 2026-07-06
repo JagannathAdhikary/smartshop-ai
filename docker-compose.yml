@@ -25,6 +25,52 @@ services:
     ports:
       - "6379:6379"
 
+  kafka:
+    image: apache/kafka:4.3.1-rc1
+    container_name: kafka
+    ports:
+      - "9092:9092"
+      - "29092:29092"
+    environment:
+      KAFKA_NODE_ID: 1
+      KAFKA_PROCESS_ROLES: broker,controller
+      KAFKA_LISTENERS: PLAINTEXT://0.0.0.0:9092,CONTROLLER://0.0.0.0:9093,EXTERNAL://0.0.0.0:29092
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://localhost:9092,EXTERNAL://kafka:29092
+      KAFKA_CONTROLLER_LISTENER_NAMES: CONTROLLER
+      KAFKA_CONTROLLER_QUORUM_VOTERS: 1@kafka:9093
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT,EXTERNAL:PLAINTEXT
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      CLUSTER_ID: MkU3OEVBNTcwNTJENDM2Qk
+
+  kafka-ui:
+    image: provectuslabs/kafka-ui
+    ports:
+      - "8090:8080"
+    environment:
+      KAFKA_CLUSTERS_0_NAME: local
+      KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS: kafka:29092
+#  kafbat-ui:
+#    container_name: kafbat-ui
+#    image: ghcr.io/kafbat/kafka-ui:latest
+#    ports:
+#      - 8090:8080
+#    environment:
+#      KAFKA_CLUSTERS_0_NAME: local
+#      KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS: kafka:9092
+
+  mongodb:
+    image: arm64v8/mongo:8-noble
+    ports:
+      - "27017:27017"
+    container_name: mongodb
+    environment:
+      MONGO_INITDB_DATABASE: smartshop_read
+      MONGO_INITDB_ROOT_USERNAME: smartshop
+      MONGO_INITDB_ROOT_PASSWORD: pwd
+    volumes:
+      - mongo_data:/data/db
+
 volumes:
   postgres_user_data:
   postgres_product_data:
+  mongo_data:

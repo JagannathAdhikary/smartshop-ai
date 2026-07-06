@@ -10,7 +10,7 @@ spring:
     password: pwd
   jpa:
     hibernate:
-      ddl-auto: create-drop
+      ddl-auto: update
     show-sql: true
 jwt:
   secret: ${JWT_SECRET}
