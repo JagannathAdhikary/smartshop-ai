@@ -1,7 +1,5 @@
 package com.smartshop.order.event;
 
-import com.smartshop.order.model.OrderStatus;
-
 import java.math.BigDecimal;
 import java.util.List;
 import java.util.UUID;

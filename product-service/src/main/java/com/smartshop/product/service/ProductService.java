@@ -81,6 +81,14 @@ public class ProductService {
         productEventProducer.publish(product, "DELETED");
     }
 
+    public boolean reserveStock(UUID prodId, int q) {
+        try {
+            return this.productRepository.reserveStock(prodId, q) == 1;
+        } catch (Exception ex) {
+            return false;
+        }
+    }
+
     private Product findById(UUID id) {
         return productRepository.findById(id)
                 .orElseThrow(() -> new ProductNotFoundException("Product Not Found"));

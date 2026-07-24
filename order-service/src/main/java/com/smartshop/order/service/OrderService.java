@@ -68,4 +68,19 @@ public class OrderService {
     public List<Order> fetchMyOrder(String buyerEmail) {
         return repository.findAllByBuyerId(buyerEmail);
     }
+
+    public void updateOrder(Order order) {
+        repository.save(order);
+    }
+
+    public boolean checkout(UUID orderId) {
+        try {
+            Order order = this.fetchOrder(orderId);
+            order.transitTo(OrderStatus.PAYMENT_PROCESSING);
+            orderEventProducer.publish(order, "PAYMENT_PROCESSING");
+            return true;
+        } catch(IllegalStateException ex) {
+            return false;
+        }
+    }
 }

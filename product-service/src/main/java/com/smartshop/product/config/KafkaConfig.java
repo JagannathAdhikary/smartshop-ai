@@ -14,4 +14,12 @@ public class KafkaConfig {
                 .replicas(2)
                 .build();
     }
+
+    @Bean
+    public NewTopic reservationTopic() {
+        return TopicBuilder.name("reservation-events")
+                .partitions(1)
+                .replicas(1)
+                .build();
+    }
 }

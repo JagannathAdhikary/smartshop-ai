@@ -35,4 +35,11 @@ public class OrderController {
     public ResponseEntity fetchMyOrdes(@RequestHeader("X-User-Id") String buyerId) {
         return ResponseEntity.status(HttpStatus.OK).body(service.fetchMyOrder(buyerId));
     }
+
+    @PostMapping("/{id}/checkout")
+    public ResponseEntity checkout(@PathVariable(name = "id") UUID orderId) {
+        return service.checkout(orderId) ?
+                ResponseEntity.ok("Payment Initiated") :
+                ResponseEntity.internalServerError().body("Cannot proceed with this order");
+    }
 }
